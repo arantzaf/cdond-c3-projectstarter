@@ -10,7 +10,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
+            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
             exit 1
 
   revert-migrations:
@@ -68,38 +69,43 @@ jobs:
   test-frontend:
     docker:
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
                 
   test-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
             
   scan-frontend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
 
   scan-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
 
   deploy-infrastructure:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - run:
@@ -107,9 +113,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your back-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
+              # --tags project=your-tag \
+              --stack-name backend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
               exit 1
       - run:
           name: Ensure front-end infrastructure exist
@@ -117,8 +123,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               #--tags project=your-tag \
-              # --stack-name "your front-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
+              --stack-name frontend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
               exit 1
       - run:
           name: Add back-end ip to ansible inventory
@@ -133,10 +139,13 @@ jobs:
 
   configure-infrastructure:
     docker:
-      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["4d:21:98:3a:b2:b9:c9:8c:f7:e1:59:c0:7e:5f:86:be"]
       # attach workspace
       - run:
           name: Install dependencies
@@ -153,6 +162,7 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - run:
@@ -169,7 +179,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - run:
@@ -190,10 +200,11 @@ jobs:
                     
   deploy-backend:
     docker:
-      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["4d:21:98:3a:b2:b9:c9:8c:f7:e1:59:c0:7e:5f:86:be"]
       # attach workspace
       - run:
           name: Install dependencies
@@ -208,6 +219,7 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image 
+      - image: alpine:latest
     steps:
       # Checkout code from git
       - run:
@@ -230,7 +242,7 @@ jobs:
 
   cloudfront-update:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - run:
@@ -245,14 +257,14 @@ jobs:
 
 cleanup:
     docker:
-      # Docker image here
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Get old stack workflow id
           command: |
             # your code here
-            export OldWorkflowID="the id here"
+            export OldWorkflowID=$(cat ~/textfile.txt)
             export STACKS=[] #put the list of stacks here
       - run:
           name: Remove old stacks and files
