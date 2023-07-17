@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.1
+
 jobs:
   build-frontend:
     docker:
@@ -70,13 +73,16 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - run: 
           name: Run frontend audit
           command: |
             cd frontend
             npm install
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
+            # npm audit fix --audit-level=critical --force
+            # npm audit fix --force
             npm audit --audit-level=critical
 
   scan-backend:
@@ -86,14 +92,18 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - run: 
           name: Run backend audit
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical --force
-            npm audit fix --force
+            # npm audit fix --audit-level=critical --force
+            # npm audit fix --force
             npm audit --audit-level=critical
+
 
 workflows:
   default:
