@@ -73,9 +73,6 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
       - run: 
           name: Run frontend audit
           command: |
@@ -84,6 +81,9 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   scan-backend:
     docker:
@@ -92,9 +92,6 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
       - run: 
           name: Run backend audit
           command: |
@@ -103,6 +100,9 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
 
 workflows:
