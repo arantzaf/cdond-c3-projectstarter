@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4.1
+  slack: circleci/slack@4.12.5
 
 jobs:
   build-frontend:
@@ -119,6 +119,10 @@ workflows:
       - scan-frontend:
           requires:
             - "build-frontend"
+          context: 
+            - slack-secrets
       - scan-backend:
           requires:
             - "build-backend"
+          context: 
+            - slack-secrets
