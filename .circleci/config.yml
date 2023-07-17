@@ -3,6 +3,17 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.12.5
 
+commands:
+  check-if-fail-or-pass:
+    description: Test if job failed or passed
+    steps:
+      - slack/notify:
+            event: fail
+            template: basic_fail_1
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
+
 jobs:
   build-frontend:
     docker:
@@ -17,9 +28,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build
+      - check-if-fail-or-pass
 
   build-backend:
     docker:
@@ -34,9 +43,7 @@ jobs:
             cd backend
             npm install
             npm run build
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build
+      - check-if-fail-or-pass
 
   test-frontend:
     docker:
@@ -51,6 +58,7 @@ jobs:
             cd frontend
             npm install
             npm run test
+      - check-if-fail-or-pass
                 
   test-backend:
     docker:
@@ -65,6 +73,7 @@ jobs:
             cd backend
             npm install
             npm run test
+      - check-if-fail-or-pass
 
   scan-frontend:
     docker:
@@ -81,9 +90,7 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      - check-if-fail-or-pass
 
   scan-backend:
     docker:
@@ -100,22 +107,28 @@ jobs:
             # npm audit fix --audit-level=critical --force
             # npm audit fix --force
             npm audit --audit-level=critical
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
+      - check-if-fail-or-pass
 
 
 workflows:
   default:
     jobs:
-      - build-backend
-      - build-frontend
+      - build-backend:
+          context: 
+            - slack-secrets
+      - build-frontend:
+          context: 
+            - slack-secrets
       - test-frontend:
           requires:
             - "build-frontend"
+          context: 
+            - slack-secrets
       - test-backend:
           requires:
             - "build-backend"
+          context: 
+            - slack-secrets
       - scan-frontend:
           requires:
             - "build-frontend"
