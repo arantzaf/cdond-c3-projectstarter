@@ -234,28 +234,23 @@ jobs:
           command: |
             yum install -y python3
       - run:
-          name: Install Node and NPM
-          command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            . ~/.nvm/nvm.sh
-            nvm install 16
-            node -v
-            npm -v
-      - run:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress')
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
-          name: Deploy frontend objects
+          name: Install Node and Deploy frontend objects
           command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+            . ~/.nvm/nvm.sh
+            nvm install 16
             cd frontend
             npm install
             npm run build
@@ -286,20 +281,15 @@ jobs:
           command: |
             yum install -y python3
       - run:
-          name: Install Node and NPM
-          command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            . ~/.nvm/nvm.sh
-            nvm install 16
-            node -v
-            npm -v
-      - run:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
       - run:
-          name: Deploy backend
+          name: Install Node and Deploy backend
           command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+            . ~/.nvm/nvm.sh
+            nvm install 16
             cd backend
             npm run build
             cd ..
