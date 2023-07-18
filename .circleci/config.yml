@@ -206,6 +206,7 @@ jobs:
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
       - run:
           name: Send migration results to memstash
           command: |
@@ -247,7 +248,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress')
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -278,6 +279,8 @@ jobs:
           name: Install tar utility
           command: |
             yum install -y tar gzip
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install python
           command: |
@@ -294,8 +297,6 @@ jobs:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
-      - attach_workspace:
-          at: ~/
       - run:
           name: Deploy backend
           command: |
