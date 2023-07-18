@@ -235,7 +235,7 @@ jobs:
       - run:
           name: Install Node and NPM
           command: |
-            apk add nodejs npm
+            yum install -y nodejs
       - run:
           name: Get backend url
           command: |
@@ -255,7 +255,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
       - checkout
       - add_ssh_keys:
@@ -265,15 +265,16 @@ jobs:
       - run:
           name: Update and upgrade
           command: |
-            apt update
+            yum update -y
+            yum upgrade -y
       - run:
           name: Install tar utility
           command: |
-            apt install tar gzip
+            yum install -y tar gzip
       - run:
           name: Install python
           command: |
-            apt install python3
+            yum install -y python3
       - run:
           name: Install Ansible
           command: |
@@ -281,7 +282,7 @@ jobs:
       - run:
           name: Install Node and NPM
           command: |
-            apt install nodejs npm
+            yum install -y nodejs
       - run:
           name: Deploy backend
           command: |
