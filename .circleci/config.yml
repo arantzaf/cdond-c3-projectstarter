@@ -234,6 +234,11 @@ jobs:
           command: |
             yum install -y python3
       - run:
+          name: Install Node and NPM
+          command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+            . ~/.nvm/nvm.sh
+      - run:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
@@ -246,12 +251,10 @@ jobs:
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env
       - run:
-          name: Install Node and Deploy frontend objects
+          name: Deploy frontend objects
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            . ~/.nvm/nvm.sh
-            nvm install 16
             cd frontend
+            nvm install 16
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
@@ -281,16 +284,20 @@ jobs:
           command: |
             yum install -y python3
       - run:
+          name: Install Node and NPM
+          command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+            . ~/.nvm/nvm.sh
+      - run:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
       - run:
-          name: Install Node and Deploy backend
+          name: Deploy backend
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            . ~/.nvm/nvm.sh
-            nvm install 16
             cd backend
+            nvm install 16
+            npm install
             npm run build
             cd ..
             tar -C backend -czvf artifact.tar.gz .
