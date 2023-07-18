@@ -225,6 +225,10 @@ jobs:
             yum update -y
             yum upgrade -y
       - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run:
           name: Install Node and NPM
           command: |
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
@@ -270,6 +274,10 @@ jobs:
             yum update -y
             yum upgrade -y
       - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run:
           name: Install Node and NPM
           command: |
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
@@ -277,10 +285,6 @@ jobs:
             nvm install --lts
             node -v
             npm -v
-      - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip
       - run:
           name: Install python
           command: |
