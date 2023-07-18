@@ -118,7 +118,7 @@ jobs:
             npm audit --audit-level=critical
       - check-if-fail-or-pass
 
-deploy-infrastructure:
+  deploy-infrastructure:
     docker:
       - image: amazon/aws-cli
     steps:
