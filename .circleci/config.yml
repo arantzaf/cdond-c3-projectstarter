@@ -225,6 +225,12 @@ jobs:
             yum update -y
             yum upgrade -y
       - run:
+          name: Install Node and NPM
+          command: |
+            yum install -y gcc-c++ make 
+            curl -sL https://rpm.nodesource.com/setup_18.x | -E bash -
+            yum install -y nodejs
+      - run:
           name: Install python
           command: |
             yum install -y python3
@@ -232,12 +238,6 @@ jobs:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
-      - run:
-          name: Install Node and NPM
-          command: |
-            yum install -y gcc-c++ make 
-            curl -sL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
-            yum install -y nodejs
       - run:
           name: Get backend url
           command: |
@@ -268,6 +268,12 @@ jobs:
             yum update -y
             yum upgrade -y
       - run:
+          name: Install Node and NPM
+          command: |
+            yum install -y gcc-c++ make 
+            curl -sL https://rpm.nodesource.com/setup_18.x | -E bash -
+            yum install -y nodejs
+      - run:
           name: Install tar utility
           command: |
             yum install -y tar gzip
@@ -279,12 +285,6 @@ jobs:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
-      - run:
-          name: Install Node and NPM
-          command: |
-            yum install -y gcc-c++ make 
-            curl -sL https://rpm.nodesource.com/setup_18.x | sudo -E bash -
-            yum install -y nodejs
       - attach_workspace:
           at: ~/
       - run:
