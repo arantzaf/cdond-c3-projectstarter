@@ -229,6 +229,10 @@ jobs:
           command: |
             yum install -y tar gzip
       - run:
+          name: Install python
+          command: |
+            yum install -y python3
+      - run:
           name: Install Node and NPM
           command: |
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
@@ -236,10 +240,6 @@ jobs:
             nvm install --lts
             node -v
             npm -v
-      - run:
-          name: Install python
-          command: |
-            yum install -y python3
       - run:
           name: Install Ansible
           command: |
@@ -278,6 +278,10 @@ jobs:
           command: |
             yum install -y tar gzip
       - run:
+          name: Install python
+          command: |
+            yum install -y python3
+      - run:
           name: Install Node and NPM
           command: |
             curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
@@ -285,10 +289,6 @@ jobs:
             nvm install --lts
             node -v
             npm -v
-      - run:
-          name: Install python
-          command: |
-            yum install -y python3
       - run:
           name: Install Ansible
           command: |
