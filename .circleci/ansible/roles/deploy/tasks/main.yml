@@ -1,11 +1,22 @@
 ---
+- name: "Copy artifact zip"
+  ansible.builtin.copy:
+    src: /root/project/artifact.tar.gz
+    dest: ~/artifact.tar.gz
+
+- name: "extract zip file"
+  shell: |
+    cd ~/
+    tar -xvzf artifact.tar.gz
+    ls -al
+
 - name: "npm install"
   shell: |
     npm install
   
-- name: "stop pm2 defaults"
-  shell: |
-    pm2 stop default
+# - name: "stop pm2 defaults"
+#   command: |
+#     pm2 stop default
   
 - name: Executing node
   shell: |
