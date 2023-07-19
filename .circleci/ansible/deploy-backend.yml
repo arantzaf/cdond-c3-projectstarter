@@ -19,6 +19,7 @@
       copy:
         src: artifact.tar.gz
         dest: ~/artifact.tar.gz
+        remote_src: true
 
     - name: "extract zip file"
       shell: |
