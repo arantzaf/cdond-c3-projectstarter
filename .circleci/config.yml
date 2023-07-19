@@ -182,7 +182,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.10-alpine3.17
     steps:
       - checkout
       - add_ssh_keys:
@@ -273,17 +273,11 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.11 #ansible image
+      - image: python:3.10-alpine3.17 #ansible image
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints: ["57:ac:01:d2:d2:01:40:86:37:df:12:a8:3e:dc:4a:fa"]
-      - run:
-          name: Install tar utility
-          command: |
-            apk add --update tar gzip
-            apk add --no-cache curl
-            apk add --no-cache aws-cli
       - attach_workspace:
           at: ~/
       - run:
@@ -291,6 +285,13 @@ jobs:
           command: |
             apk update
             apk upgrade
+      - run:
+          name: Install tar utility and command dependencies
+          command: |
+            apk add --update tar gzip
+            apk add --no-cache curl
+            pip3 install --upgrade pip
+            pip3 install --no-cache-dir awscli
       - run:
           name: update ansible
           command: |
