@@ -273,7 +273,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11 #ansible image
     steps:
       - checkout
       - add_ssh_keys:
@@ -281,28 +281,28 @@ jobs:
       - run:
           name: Install tar utility
           command: |
-            yum install -y tar gzip
+            apk add --update tar gzip
       - attach_workspace:
           at: ~/
       - run:
-          name: Update and upgrade
+          name: install dependecies
           command: |
-            yum update -y
-            yum upgrade -y
+            apk update
+            apk upgrade
       - run:
-          name: Install python
+          name: update ansible
           command: |
-            yum install -y python3
+            apk add --update ansible
       - run:
-          name: Install Ansible
+          name: Install node
           command: |
-            python3 -m pip install ansible
+            apk add --update nodejs npm
+            apk add --update npm
+            node -v
+            npm -v
       - run:
-          name: Install Node and NPM Deploy backend
+          name: NPM Deploy backend
           command: |
-            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
-            . ~/.nvm/nvm.sh
-            nvm install 16
             cd backend
             npm i
             npm run build
