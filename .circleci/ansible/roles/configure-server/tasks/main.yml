@@ -18,3 +18,7 @@
     global: yes
     production: yes
     state: present
+
+- name: "Install open ssh"
+  become: true
+  command: apk add openssh-client
