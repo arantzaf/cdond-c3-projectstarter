@@ -1,4 +1,10 @@
 ---
+- name: Copy files
+  become: true
+  copy:
+    src: ~/
+    dest: ~/
+
 - name: "npm install"
   command: npm install
   

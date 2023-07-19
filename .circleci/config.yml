@@ -275,8 +275,6 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - add_ssh_keys:
-          fingerprints: ["4d:21:98:3a:b2:b9:c9:8c:f7:e1:59:c0:7e:5f:86:be"]
       - run:
           name: Install tar utility
           command: |
@@ -296,6 +294,8 @@ jobs:
           name: Install Ansible
           command: |
             python3 -m pip install ansible
+      - add_ssh_keys:
+          fingerprints: ["4d:21:98:3a:b2:b9:c9:8c:f7:e1:59:c0:7e:5f:86:be"]
       - run:
           name: Install Node and NPM Deploy backend
           command: |
