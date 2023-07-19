@@ -16,7 +16,7 @@
       wait_for_connection:
 
     - name: "Copy artifact zip"
-      copy:
+      ansible.builtin.copy:
         src: /root/project/artifact.tar.gz
         dest: ~/artifact.tar.gz
         remote_src: true
