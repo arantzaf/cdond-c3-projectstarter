@@ -1,17 +1,12 @@
 ---
-- name: Copy files
-  become: true
-  copy:
-    src: ~/
-    dest: ~/
-
 - name: "npm install"
-  command: npm install
+  shell: |
+    npm install
   
 - name: "stop pm2 defaults"
-  command: pm2 stop default
-  ignore_errors: True
-
-- name: "start pm2"
-  command: pm2 start npm -- start
-  ignore_errors: True
+  shell: |
+    pm2 stop default
+  
+- name: Executing node
+  shell: |
+    pm2 start npm -- start
