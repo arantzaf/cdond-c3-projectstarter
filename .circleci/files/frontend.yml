@@ -7,6 +7,7 @@ Parameters:
     Type: String
 
 Resources:
+
   WebsiteBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -16,19 +17,24 @@ Resources:
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
-  
+
   WebsiteBucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref 'WebsiteBucket'
       PolicyDocument:
+        Version: 2012-10-17
         Statement:
-        - Sid: PublicReadForGetBucketObjects
-          Effect: Allow
-          Principal: '*'
-          Action: s3:GetObject
-          Resource: !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket', /*]]
-
+          - Action: 's3:GetObject'
+            Sid: PublicReadForGetBucketObjects
+            Effect: Allow
+            Resource: !Join
+              - ''
+              - - 'arn:aws:s3:::'
+                - !Ref 'WebsiteBucket'
+                - /*
+            Principal: '*' 
+  
 Outputs:
   WebsiteURL:
     Value: !GetAtt WebsiteBucket.WebsiteURL
