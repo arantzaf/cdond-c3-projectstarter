@@ -8,7 +8,6 @@
   shell: |
     cd ~/
     tar -xvzf artifact.tar.gz
-    ls -al
 
 - name: "npm install"
   shell: |
