@@ -36,8 +36,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            URL='https://kvdb.io/Mj7ZLemeAgNAY8CzQRD5Rt/migration_<< parameters.workflow_id >>'
-            SUCCESS=$(curl --insecure url)
+            SUCCESS=$(curl --insecure  https://kvdb.io/Mj7ZLemeAgNAY8CzQRD5Rt/migration_<< parameters.workflow_id >>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -263,6 +262,9 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+            . ~/.nvm/nvm.sh
+            nvm install 16
             cd frontend
             npm install
             npm run build
@@ -308,6 +310,9 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.3/install.sh | bash
+            . ~/.nvm/nvm.sh
+            nvm install 16
             cd backend
             npm i
             npm run build
