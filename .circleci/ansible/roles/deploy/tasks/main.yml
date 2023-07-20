@@ -18,6 +18,7 @@
     cd dist
     pm2 delete all
     pm2 start main.js
+    
   register: start_node
 
 - name: print response
