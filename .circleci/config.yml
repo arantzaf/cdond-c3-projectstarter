@@ -439,7 +439,7 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            export OldWorkflowID=echo $(cat oldWorkflowID.txt)
+            export OldWorkflowID=$(echo cat oldWorkflowID.txt)
             echo Old Workflow ID ${OldWorkflowID}
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
             export STACKS=($(aws cloudformation list-stacks \
