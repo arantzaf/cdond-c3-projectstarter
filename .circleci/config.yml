@@ -60,7 +60,10 @@ jobs:
             cd frontend
             npm install
             npm run build
-      - check-if-fail-or-pass
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
+      # - check-if-fail-or-pass
 
   build-backend:
     docker:
@@ -75,7 +78,10 @@ jobs:
             cd backend
             npm install
             npm run build
-      - check-if-fail-or-pass
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+      # - check-if-fail-or-pass
 
   test-frontend:
     docker:
@@ -90,7 +96,7 @@ jobs:
             cd frontend
             npm install
             npm run test
-      - check-if-fail-or-pass
+      # - check-if-fail-or-pass
                 
   test-backend:
     docker:
@@ -105,7 +111,7 @@ jobs:
             cd backend
             npm install
             npm run test
-      - check-if-fail-or-pass
+      # - check-if-fail-or-pass
 
   scan-frontend:
     docker:
@@ -122,7 +128,7 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-      - check-if-fail-or-pass
+      # - check-if-fail-or-pass
 
   scan-backend:
     docker:
@@ -139,7 +145,7 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
-      - check-if-fail-or-pass
+      # - check-if-fail-or-pass
 
   deploy-infrastructure:
     docker:
@@ -171,14 +177,15 @@ jobs:
           command: |
             cd .circleci/ansible
             aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   configure-infrastructure:
     docker:
@@ -208,9 +215,11 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
@@ -225,8 +234,8 @@ jobs:
             then
               curl https://kvdb.io/Mj7ZLemeAgNAY8CzQRD5Rt/migration_${CIRCLE_WORKFLOW_ID:0:7} --insecure -d '1'
             fi
-      - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
@@ -237,8 +246,8 @@ jobs:
           name: Install tar utility
           command: |
             yum install -y tar gzip
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Update and upgrade
           command: |
@@ -269,12 +278,11 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
   deploy-backend:
     docker:
@@ -283,8 +291,8 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["57:ac:01:d2:d2:01:40:86:37:df:12:a8:3e:dc:4a:fa"]
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: install dependecies
           command: |
@@ -307,13 +315,17 @@ jobs:
             apk add --update nodejs npm
             apk add --update npm
       - run:
-          name: Deploy backend
+          name: Set up packages for backend
           command: |
             cd backend
             npm install
             npm run build
+            tar -czf artifact.tar.gz dist/* package*
             cd ..
-            tar -C backend -czvf artifact.tar.gz .
+            cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
+      - run:
+          name: deploy backend
+          command: |
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
@@ -385,24 +397,18 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-backend:
-      #     context: [slack-secrets]
-      # - build-frontend:
-      #     context: [slack-secrets]
-      # - test-frontend:
-      #     requires: [build-frontend]
-      #     context: [slack-secrets]
-      # - test-backend:
-      #     requires: [build-backend]
-      #     context: [slack-secrets]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      #     context: [slack-secrets]
-      # - scan-backend:
-      #     requires: [build-backend]
-      #     context: [slack-secrets]
-      - deploy-infrastructure
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - build-backend
+      - build-frontend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:

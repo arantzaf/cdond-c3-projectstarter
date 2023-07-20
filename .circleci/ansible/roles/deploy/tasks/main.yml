@@ -9,9 +9,17 @@
     cd ~/
     tar -xvzf artifact.tar.gz
 
-# - name: "install and start node"
-#   shell: |
-#     cd .
-#     npm install
-#     pm2 stop default
-#     pm2 start npm -- start
+- name: "install dependencies"
+  shell: |
+    npm i
+
+- name: "start node"
+  shell: |
+    cd dist
+    pm2 delete all
+    pm2 start main.js
+  register: start_node
+
+- name: print response
+  debug: |
+    msg: "{{start_node.stdout_lines}}"
