@@ -147,28 +147,6 @@ jobs:
             npm audit --audit-level=critical
       # - check-if-fail-or-pass
 
-  get-old-workflows:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip
-      - run:
-          name: Get old stack workflow id
-          command: |
-            echo 3cc5830 > oldWorkflowID.txt
-            # aws cloudformation list-exports \
-            #   --query "Exports[?Name=='WorkflowID'].Value" \
-            #   --no-paginate --output text >> oldWorkflowID.txt
-            cat oldWorkflowID.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/oldWorkflowID.txt
-
   deploy-infrastructure:
     docker:
       - image: amazon/aws-cli
@@ -413,6 +391,21 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip
+      - run:
+          name: Get old stack workflow id
+          command: |
+            aws cloudformation list-exports \
+              --query "Exports[?Name=='WorkflowID'].Value" \
+              --no-paginate --output text >> oldWorkflowID.txt
+            cat oldWorkflowID.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/oldWorkflowID.txt
+      - run:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy \
@@ -460,34 +453,34 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-backend
-      # - build-frontend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      - get-old-workflows
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          # filters:
-          #   branches:
-          #     only: [master]
-      # - deploy-infrastructure:
-      #     requires: [get-old-workflows]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      - cleanup:
+      - build-backend
+      - build-frontend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - get-old-workflows:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - deploy-infrastructure:
           requires: [get-old-workflows]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
