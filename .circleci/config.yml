@@ -159,7 +159,7 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            echo udapeople-3cc5830 > oldWorkflowID.txt
+            echo 3cc5830 > oldWorkflowID.txt
             # aws cloudformation list-exports \
             #   --query "Exports[?Name=='WorkflowID'].Value" \
             #   --no-paginate --output text >> oldWorkflowID.txt
