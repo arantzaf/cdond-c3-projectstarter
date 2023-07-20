@@ -462,7 +462,7 @@ workflows:
       - get-old-workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - deploy-infrastructure:
-          requires: [get-old-workflows:]
+          requires: [get-old-workflows]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
