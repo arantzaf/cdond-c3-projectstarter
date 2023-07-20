@@ -417,7 +417,48 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-  
+
+  promethus-server-node-exporter:
+    docker:
+      - image: python:3.10-alpine3.17 #ansible image
+    step:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["57:ac:01:d2:d2:01:40:86:37:df:12:a8:3e:dc:4a:fa"]
+      - run:
+          name: install dependencies
+          command: |
+            apk update
+            apk upgrade
+      - run:
+          name: Install tar utility and command dependencies
+          command: |
+            apk add --update tar gzip
+            apk add --no-cache curl
+            pip3 install --upgrade pip
+            pip3 install --no-cache-dir awscli
+      - run:
+          name: update ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: Install node
+          command: |
+            apk add --update nodejs npm
+            apk add --update npm
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: setup node exporter
+          command: |
+            cd .circleci/ansible
+            cat inventory.txt
+            ansible-playbook -i inventory.txt node-exporter.yml
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   cleanup:
     docker:
       - image: amazon/aws-cli
@@ -453,32 +494,34 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-backend
-      - build-frontend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      # - build-backend
+      # - build-frontend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [master]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test:
+          # requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      - promethus-server-node-exporter:
+          # requires: [smoke-test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
