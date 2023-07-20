@@ -159,7 +159,7 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            echo 'udapeople-3cc5830' > oldWorkflowID.txt
+            echo udapeople-3cc5830 > oldWorkflowID.txt
             # aws cloudformation list-exports \
             #   --query "Exports[?Name=='WorkflowID'].Value" \
             #   --no-paginate --output text >> oldWorkflowID.txt
@@ -439,8 +439,9 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            export OldWorkflowID=echo $(cat oldWorkflowID.txt)
-            echo Old Workflow ID ${OldWorkflowID}
+            cat ~/oldWorkflowID.txt
+            OldWorkflowID=$(cat ~/oldWorkflowID.txt)
+            echo $OldWorkflowID
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
             export STACKS=($(aws cloudformation list-stacks \
               --query "StackSummaries[*].StackName" \
