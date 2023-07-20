@@ -1,21 +1,22 @@
 ---
-- name: "Copy artifact zip"
-  ansible.builtin.copy:
-    src: /root/project/artifact.tar.gz
-    dest: ~/artifact.tar.gz
+- name: "create backend directory"
+  file:
+    path: ~/backend
+    state: directory
 
-- name: "extract zip file"
-  shell: |
-    cd ~/
-    tar -xvzf artifact.tar.gz
+- name: "copy and unzip backend files"
+  unarchive:
+    src: artifact.tar.gz
+    dest: ~/backend
 
 - name: "install dependencies"
   shell: |
+    cd ~/backend
     npm i
 
 - name: "start node"
   shell: |
-    cd dist
+    cd ~/backend/dist
     pm2 delete all
     pm2 start main.js
     
