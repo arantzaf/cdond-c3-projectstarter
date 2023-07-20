@@ -9,14 +9,9 @@
     cd ~/
     tar -xvzf artifact.tar.gz
 
-- name: "npm install"
+- name: "install and start node"
   shell: |
+    cd backend
     npm install
-  
-# - name: "stop pm2 defaults"
-#   command: |
-#     pm2 stop default
-  
-- name: Executing node
-  shell: |
+    pm2 stop default
     pm2 start npm -- start
